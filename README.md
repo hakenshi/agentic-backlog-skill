@@ -31,3 +31,10 @@ Example prompts:
 - "\\agentic-backlog:read"
 - "\\agentic-backlog:show-task login"
 - "\\agentic-backlog:update-task login set status in_progress"
+
+## Quick demo prompts
+
+- "\\agentic-backlog:add create task 'Ship onboarding MVP' priority high"
+- "\\agentic-backlog:update-task onboarding set status in_progress"
+- "\\agentic-backlog:read"
+- "\\agentic-backlog:board"
