@@ -4,6 +4,24 @@ Use this skill whenever you are doing implementation work and need task tracking
 
 This skill assumes a local MCP server named `agentic-backlog` is available.
 
+## Trigger phrases
+
+Use this skill proactively when the user says things like:
+
+- "add to backlog"
+- "remove from backlog"
+- "update backlog"
+- "read backlog"
+- "show board"
+- "what is in progress"
+
+Expected behavior by trigger:
+
+- **add to backlog** -> create a task (`backlog.create_task`)
+- **remove from backlog** -> delete only with explicit confirmation (`backlog.delete_task` + `confirm: "DELETE"`)
+- **update backlog** -> update task fields or status (`backlog.update_task` / `backlog.update_task_status`)
+- **read backlog** -> fetch board/task snapshot (`backlog.get_board` / `backlog.get_console_table`)
+
 ## Core tools (CRUD)
 
 - `backlog.create_task`
@@ -23,12 +41,15 @@ Keep a shared backlog that multiple AI agents can update consistently.
    - Store returned `project.id`.
 2. Get current board
    - Call `backlog.get_board` and inspect WIP.
+   - Refresh board before each major implementation step.
+   - When reporting progress to the user, call `backlog.get_console_table`.
 3. Ensure active task exists
    - If no suitable task exists, call `backlog.create_task`.
 4. Start work
    - Move task to `in_progress` with `backlog.update_task_status` or `backlog.update_task`.
 5. During work
    - Add short progress notes with `backlog.add_task_note`.
+   - Re-read the board after each note/status transition.
 6. On completion
    - Move to `review` or `done`.
 7. On blockers
@@ -66,3 +87,4 @@ Use `backlog.plan_from_context` for fast task drafting from plain text.
 - Keep notes objective and short.
 - Prefer one active `in_progress` task per agent/session.
 - Deletions must be explicit: call `backlog.delete_task` with `confirm: "DELETE"`.
+- Keep updates frequent: at least one status or note update per completed sub-step.
