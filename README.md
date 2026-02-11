@@ -29,3 +29,5 @@ Example prompts:
 - "\\agentic-backlog:add"
 - "\\agentic-backlog:update"
 - "\\agentic-backlog:read"
+- "\\agentic-backlog:show-task login"
+- "\\agentic-backlog:update-task login set status in_progress"

@@ -14,6 +14,8 @@ Use this skill proactively when the user says things like:
 - `\agentic-backlog:read`
 - `\agentic-backlog:board`
 - `\agentic-backlog:in-progress`
+- `\agentic-backlog:show-task`
+- `\agentic-backlog:update-task`
 
 Expected behavior by trigger:
 
@@ -23,6 +25,15 @@ Expected behavior by trigger:
 - **\agentic-backlog:read** -> fetch board/task snapshot (`backlog.get_board` / `backlog.get_console_table`)
 - **\agentic-backlog:board** -> return board overview (`backlog.get_board` + `backlog.get_console_table`)
 - **\agentic-backlog:in-progress** -> list active WIP (`backlog.list_tasks` with `status: in_progress`)
+- **\agentic-backlog:show-task** -> find a specific task by title keywords, then show it (`backlog.list_tasks` + `backlog.get_task`)
+- **\agentic-backlog:update-task** -> find a specific task by title keywords, then update it (`backlog.list_tasks` + `backlog.update_task`)
+
+Task-by-name behavior:
+
+- Use user-provided title keywords to search current project tasks.
+- Prefer exact title match; otherwise use best partial match.
+- If multiple close matches exist, show top candidates and ask which one to use.
+- For updates, always echo the matched task title/id before applying the change.
 
 ## Core tools (CRUD)
 
