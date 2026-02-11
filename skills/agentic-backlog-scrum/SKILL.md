@@ -3,7 +3,7 @@ name: agentic-backlog-scrum
 description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
 metadata:
   author: hakenshi
-  version: "0.2.9"
+  version: "0.3.0"
 ---
 
 # Agentic Backlog Scrum
@@ -35,20 +35,20 @@ If backlog MCP calls fail because the API is not reachable (connection refused, 
 3. Run API on localhost `:38117`:
    - `docker run -d --name agentic-backlog-api -p 38117:8000 -e PORT=8000 -e BACKLOG_DB_PATH=/data/backlog.sqlite -v agentic-backlog-data:/data lonelyww/agentic-backlog-elysia:latest`
 4. Verify health:
-   - `curl http://127.0.0.1:38117/health` (if API is namespaced, use `/api/health`)
+   - `curl http://127.0.0.1:38117/api/health`
 5. Retry the failed backlog MCP call.
 
 Notes:
 
 - Use Docker named volume `agentic-backlog-data` to persist SQLite without host bind mount paths.
-- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117`).
+- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117/api`).
 
 ## MCP connectivity check (required)
 
 After API bootstrap, validate MCP end-to-end before doing backlog operations:
 
 1. Confirm API health endpoint:
-   - `curl http://127.0.0.1:38117/health` (if API is namespaced, use `/api/health`)
+   - `curl http://127.0.0.1:38117/api/health`
 2. Run a lightweight MCP tool call to verify data path:
    - `backlog.health` then `backlog.version`
    - `backlog.identify_project`
@@ -57,7 +57,7 @@ If the MCP tool call fails because the MCP server is not configured in the curre
 
 - Register a local MCP server named `agentic-backlog` in the active client.
 - Use local command: `npx -y @hakenshi/agentic-backlog-mcp-server`.
-- Set env: `BACKLOG_API_BASE_URL=http://127.0.0.1:38117`.
+- Set env: `BACKLOG_API_BASE_URL=http://127.0.0.1:38117/api`.
 
 If the API health check fails, run the API bootstrap fallback section above.
 
