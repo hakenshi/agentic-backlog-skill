@@ -8,19 +8,21 @@ This skill assumes a local MCP server named `agentic-backlog` is available.
 
 Use this skill proactively when the user says things like:
 
-- "add to backlog"
-- "remove from backlog"
-- "update backlog"
-- "read backlog"
-- "show board"
-- "what is in progress"
+- `\agentic-backlog:add`
+- `\agentic-backlog:remove`
+- `\agentic-backlog:update`
+- `\agentic-backlog:read`
+- `\agentic-backlog:board`
+- `\agentic-backlog:in-progress`
 
 Expected behavior by trigger:
 
-- **add to backlog** -> create a task (`backlog.create_task`)
-- **remove from backlog** -> delete only with explicit confirmation (`backlog.delete_task` + `confirm: "DELETE"`)
-- **update backlog** -> update task fields or status (`backlog.update_task` / `backlog.update_task_status`)
-- **read backlog** -> fetch board/task snapshot (`backlog.get_board` / `backlog.get_console_table`)
+- **\agentic-backlog:add** -> create a task (`backlog.create_task`)
+- **\agentic-backlog:remove** -> delete only with explicit confirmation (`backlog.delete_task` + `confirm: "DELETE"`)
+- **\agentic-backlog:update** -> update task fields or status (`backlog.update_task` / `backlog.update_task_status`)
+- **\agentic-backlog:read** -> fetch board/task snapshot (`backlog.get_board` / `backlog.get_console_table`)
+- **\agentic-backlog:board** -> return board overview (`backlog.get_board` + `backlog.get_console_table`)
+- **\agentic-backlog:in-progress** -> list active WIP (`backlog.list_tasks` with `status: in_progress`)
 
 ## Core tools (CRUD)
 

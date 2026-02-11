@@ -26,3 +26,6 @@ Example prompts:
 
 - "Use the agentic-backlog-scrum skill and keep the backlog updated while implementing"
 - "Before coding, sync with backlog and tell me the active task"
+- "\\agentic-backlog:add"
+- "\\agentic-backlog:update"
+- "\\agentic-backlog:read"
