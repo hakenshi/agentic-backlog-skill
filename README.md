@@ -1,17 +1,28 @@
-# Agentic Backlog Skill
+# Agentic Backlog Skills
 
-Skill para forcar comportamento SCRUM para IAs usando backlog local.
+Skill collection in the `vercel-labs/agent-skills` format, focused on SCRUM workflows for AI agents.
 
-## Objetivo
+## Available skill
 
-- padronizar criacao e atualizacao de tasks por agentes
-- garantir que cada sessao de IA deixe trilha no backlog
-- operar sobre MCP local ou API local
+- `agentic-backlog-scrum`
 
-## Regras base
+## Structure
 
-1. Antes de codar, identificar projeto e task ativa.
-2. Se nao existir task adequada, criar task.
-3. Ao iniciar trabalho, mover para `in_progress`.
-4. A cada marco, registrar nota.
-5. Ao finalizar, mover para `review` ou `done`.
+- `skills/agentic-backlog-scrum/SKILL.md`
+
+## Dependency
+
+This skill expects a local MCP server named `agentic-backlog` with backlog tools.
+
+## Installation (skills style)
+
+```bash
+npx skills add hakenshi/agentic-backlog-skill
+```
+
+## Usage
+
+Example prompts:
+
+- "Use the agentic-backlog-scrum skill and keep the backlog updated while implementing"
+- "Before coding, sync with backlog and tell me the active task"
