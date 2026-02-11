@@ -1,3 +1,11 @@
+---
+name: agentic-backlog-scrum
+description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
+metadata:
+  author: hakenshi
+  version: "0.2.1"
+---
+
 # Agentic Backlog Scrum
 
 Use this skill whenever you are doing implementation work and need task tracking discipline.
