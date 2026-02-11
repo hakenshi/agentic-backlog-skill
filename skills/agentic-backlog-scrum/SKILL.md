@@ -56,7 +56,8 @@ Always include metadata when available:
 
 Use `backlog.plan_from_context` for fast task drafting from plain text.
 
-- Use `dry_run=true` to preview.
+- Default behavior is preview mode.
+- Use `apply=true` to persist generated actions.
 - Apply only if actions are relevant to the current project scope.
 
 ## Guardrails
@@ -64,3 +65,4 @@ Use `backlog.plan_from_context` for fast task drafting from plain text.
 - Do not perform large code changes without linking to a task.
 - Keep notes objective and short.
 - Prefer one active `in_progress` task per agent/session.
+- Deletions must be explicit: call `backlog.delete_task` with `confirm: "DELETE"`.
