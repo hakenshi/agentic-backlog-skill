@@ -3,7 +3,7 @@ name: agentic-backlog-scrum
 description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
 metadata:
   author: hakenshi
-  version: "0.2.4"
+  version: "0.2.6"
 ---
 
 # Agentic Backlog Scrum
@@ -35,31 +35,36 @@ If backlog MCP calls fail because the API is not reachable (connection refused, 
 3. Run API on localhost `:38117`:
    - `docker run -d --name agentic-backlog-api -p 38117:8000 -e PORT=8000 -e BACKLOG_DB_PATH=/data/backlog.sqlite -v agentic-backlog-data:/data lonelyww/agentic-backlog-elysia:latest`
 4. Verify health:
-   - `curl http://127.0.0.1:38117/health`
+   - `curl http://127.0.0.1:38117/api/health` (fallback: `/health`)
 5. Retry the failed backlog MCP call.
 
 Notes:
 
 - Use Docker named volume `agentic-backlog-data` to persist SQLite without host bind mount paths.
-- If the user's MCP config requires `BACKLOG_API_KEY`, ensure the container and MCP env use matching key values.
-- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117`).
+- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117/api`).
 
 ## MCP connectivity check (required)
 
 After API bootstrap, validate MCP end-to-end before doing backlog operations:
 
-1. Confirm MCP server is connected:
-   - `opencode mcp list`
-2. Confirm API health endpoint:
-   - `curl http://127.0.0.1:38117/health`
-3. Run a lightweight MCP tool call to verify data path:
+1. Confirm API health endpoint:
+   - `curl http://127.0.0.1:38117/api/health` (fallback: `/health`)
+2. Run a lightweight MCP tool call to verify data path:
+   - `backlog.health` then `backlog.version`
    - `backlog.identify_project`
 
-If step 1 fails, re-add MCP server with:
+If the MCP tool call fails because the MCP server is not configured in the current client:
 
-- `opencode mcp add` -> name `agentic-backlog` -> local command `npx -y @hakenshi/agentic-backlog-mcp-server`
+- Register a local MCP server named `agentic-backlog` in the active client.
+- Use local command: `npx -y @hakenshi/agentic-backlog-mcp-server`.
+- Set env: `BACKLOG_API_BASE_URL=http://127.0.0.1:38117/api`.
 
-If step 2 fails, run the API bootstrap fallback section above.
+If the API health check fails, run the API bootstrap fallback section above.
+
+Client examples (optional):
+
+- OpenCode: `opencode mcp add` and `opencode mcp list`
+- Any MCP-capable client: add server `agentic-backlog` with the same command/env above
 
 ## Trigger phrases
 
@@ -102,6 +107,15 @@ Task-by-name behavior:
 - `backlog.update_task_by_title`
 - `backlog.delete_task`
 
+## Core tools (operational)
+
+- `backlog.health`
+- `backlog.version`
+- `backlog.get_focus`
+- `backlog.claim_task`
+- `backlog.release_task`
+- `backlog.restore_task` (when available)
+
 ## Goal
 
 Keep a shared backlog that multiple AI agents can update consistently.
@@ -112,18 +126,23 @@ Keep a shared backlog that multiple AI agents can update consistently.
    - Call `backlog.identify_project` first.
    - Store returned `project.id`.
 2. Get current board
-   - Call `backlog.get_board` and inspect WIP.
-   - Refresh board before each major implementation step.
-   - When reporting progress to the user, call `backlog.get_console_table`.
+    - Call `backlog.get_board` and inspect WIP.
+    - Call `backlog.get_focus` to prioritize blocked/stale/high-impact work.
+    - Refresh board before each major implementation step.
+    - When reporting progress to the user, call `backlog.get_console_table`.
 3. Ensure active task exists
    - If no suitable task exists, call `backlog.create_task`.
 4. Start work
    - Move task to `in_progress` with `backlog.update_task_status` or `backlog.update_task`.
 5. During work
-   - Add short progress notes with `backlog.add_task_note`.
-   - Re-read the board after each note/status transition.
+    - Add short progress notes with `backlog.add_task_note` using 3 fields:
+      - `feito:`
+      - `bloqueio:`
+      - `proximo:`
+    - Re-read the board after each note/status transition.
 6. On completion
-   - Move to `review` or `done`.
+    - Before moving to `review` or `done`, add a compact summary note with outcome + remaining risks.
+    - Move to `review` or `done`.
 7. On blockers
    - Move to `blocked` and include reason.
 
@@ -141,9 +160,25 @@ Keep a shared backlog that multiple AI agents can update consistently.
 
 Always include metadata when available:
 
-- `source`: agent/client name (for example `opencode`, `claude-code`)
+- `source`: agent/client name (for example `codex`, `claude-code`, `opencode`, `cursor`)
 - `agent_id`: stable agent identity when available
 - `session_id`: current conversation/session id when available
+
+## Ambiguity protocol (required)
+
+- If a title query returns multiple plausible tasks, do not auto-apply update/delete.
+- Show top 3 candidates (id, title, status, updated_at) and request explicit selection.
+- Only proceed after user chooses one candidate.
+
+## Failure protocol (required)
+
+- If MCP/API is unavailable, return this standard message:
+  - `Backlog indisponivel no momento. Vou reestabelecer conexao e tentar novamente.`
+- Then execute recovery in order:
+  1. `backlog.health`
+  2. API bootstrap fallback (section above)
+  3. `backlog.version`
+  4. Retry original operation once
 
 ## Planning mode
 
