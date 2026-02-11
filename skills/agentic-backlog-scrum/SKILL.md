@@ -25,8 +25,8 @@ Expected behavior by trigger:
 - **\agentic-backlog:read** -> fetch board/task snapshot (`backlog.get_board` / `backlog.get_console_table`)
 - **\agentic-backlog:board** -> return board overview (`backlog.get_board` + `backlog.get_console_table`)
 - **\agentic-backlog:in-progress** -> list active WIP (`backlog.list_tasks` with `status: in_progress`)
-- **\agentic-backlog:show-task** -> find a specific task by title keywords, then show it (`backlog.list_tasks` + `backlog.get_task`)
-- **\agentic-backlog:update-task** -> find a specific task by title keywords, then update it (`backlog.list_tasks` + `backlog.update_task`)
+- **\agentic-backlog:show-task** -> find a specific task by title keywords, then show it (`backlog.find_tasks_by_title` + `backlog.get_task`)
+- **\agentic-backlog:update-task** -> find a specific task by title keywords, then update it (`backlog.update_task_by_title`)
 
 Task-by-name behavior:
 
@@ -40,7 +40,9 @@ Task-by-name behavior:
 - `backlog.create_task`
 - `backlog.get_task`
 - `backlog.list_tasks`
+- `backlog.find_tasks_by_title`
 - `backlog.update_task`
+- `backlog.update_task_by_title`
 - `backlog.delete_task`
 
 ## Goal
