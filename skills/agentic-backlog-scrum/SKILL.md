@@ -3,7 +3,7 @@ name: agentic-backlog-scrum
 description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
 metadata:
   author: hakenshi
-  version: "0.2.3"
+  version: "0.2.4"
 ---
 
 # Agentic Backlog Scrum
@@ -43,6 +43,23 @@ Notes:
 - Use Docker named volume `agentic-backlog-data` to persist SQLite without host bind mount paths.
 - If the user's MCP config requires `BACKLOG_API_KEY`, ensure the container and MCP env use matching key values.
 - If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117`).
+
+## MCP connectivity check (required)
+
+After API bootstrap, validate MCP end-to-end before doing backlog operations:
+
+1. Confirm MCP server is connected:
+   - `opencode mcp list`
+2. Confirm API health endpoint:
+   - `curl http://127.0.0.1:38117/health`
+3. Run a lightweight MCP tool call to verify data path:
+   - `backlog.identify_project`
+
+If step 1 fails, re-add MCP server with:
+
+- `opencode mcp add` -> name `agentic-backlog` -> local command `npx -y @hakenshi/agentic-backlog-mcp-server`
+
+If step 2 fails, run the API bootstrap fallback section above.
 
 ## Trigger phrases
 
