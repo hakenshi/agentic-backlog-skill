@@ -2,6 +2,13 @@
 
 Skill collection in the `vercel-labs/agent-skills` format, focused on SCRUM workflows for AI agents.
 
+## Boundary (important)
+
+- Skills are documentation and operating procedures for agents.
+- Skills do not own persistence or business logic.
+- The backlog application/API is the source of truth.
+- MCP is the communication channel agents use to understand and operate that running backlog API.
+
 ## Available skill
 
 - `agentic-backlog-scrum`

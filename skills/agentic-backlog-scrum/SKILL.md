@@ -2,7 +2,19 @@
 
 Use this skill whenever you are doing implementation work and need task tracking discipline.
 
+## What this skill is
+
+- This skill is documentation for agent behavior.
+- It defines workflow, guardrails, and tool usage conventions.
+- It is not a database, API server, or business-logic runtime.
+
 This skill assumes a local MCP server named `agentic-backlog` is available.
+
+## Runtime boundary
+
+- The running backlog API/application is the source of truth.
+- MCP is how the agent reads context from and sends operations to that running API.
+- This skill only tells the agent how to behave when using MCP tools.
 
 ## Trigger phrases
 
