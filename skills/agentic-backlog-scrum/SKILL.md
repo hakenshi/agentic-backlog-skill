@@ -3,7 +3,7 @@ name: agentic-backlog-scrum
 description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
 metadata:
   author: hakenshi
-  version: "0.2.1"
+  version: "0.2.3"
 ---
 
 # Agentic Backlog Scrum
@@ -23,6 +23,26 @@ This skill assumes a local MCP server named `agentic-backlog` is available.
 - The running backlog API/application is the source of truth.
 - MCP is how the agent reads context from and sends operations to that running API.
 - This skill only tells the agent how to behave when using MCP tools.
+
+## API bootstrap fallback (required)
+
+If backlog MCP calls fail because the API is not reachable (connection refused, timeout, 5xx from missing service), the agent must bootstrap the API container before continuing.
+
+1. Pull latest API image:
+   - `docker pull lonelyww/agentic-backlog-elysia:latest`
+2. Replace any stale container instance:
+   - `docker rm -f agentic-backlog-api || true`
+3. Run API on localhost `:38117`:
+   - `docker run -d --name agentic-backlog-api -p 38117:8000 -e PORT=8000 -e BACKLOG_DB_PATH=/data/backlog.sqlite -v agentic-backlog-data:/data lonelyww/agentic-backlog-elysia:latest`
+4. Verify health:
+   - `curl http://127.0.0.1:38117/health`
+5. Retry the failed backlog MCP call.
+
+Notes:
+
+- Use Docker named volume `agentic-backlog-data` to persist SQLite without host bind mount paths.
+- If the user's MCP config requires `BACKLOG_API_KEY`, ensure the container and MCP env use matching key values.
+- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117`).
 
 ## Trigger phrases
 
