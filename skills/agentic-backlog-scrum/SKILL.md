@@ -3,7 +3,7 @@ name: agentic-backlog-scrum
 description: Keep AI implementation work synced with a backlog through MCP tools. Use when creating, updating, tracking, or reviewing tasks during coding workflows.
 metadata:
   author: hakenshi
-  version: "0.2.6"
+  version: "0.2.9"
 ---
 
 # Agentic Backlog Scrum
@@ -35,20 +35,20 @@ If backlog MCP calls fail because the API is not reachable (connection refused, 
 3. Run API on localhost `:38117`:
    - `docker run -d --name agentic-backlog-api -p 38117:8000 -e PORT=8000 -e BACKLOG_DB_PATH=/data/backlog.sqlite -v agentic-backlog-data:/data lonelyww/agentic-backlog-elysia:latest`
 4. Verify health:
-   - `curl http://127.0.0.1:38117/api/health` (fallback: `/health`)
+   - `curl http://127.0.0.1:38117/health` (if API is namespaced, use `/api/health`)
 5. Retry the failed backlog MCP call.
 
 Notes:
 
 - Use Docker named volume `agentic-backlog-data` to persist SQLite without host bind mount paths.
-- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117/api`).
+- If MCP points to a different port, update `BACKLOG_API_BASE_URL` to match (recommended default: `http://127.0.0.1:38117`).
 
 ## MCP connectivity check (required)
 
 After API bootstrap, validate MCP end-to-end before doing backlog operations:
 
 1. Confirm API health endpoint:
-   - `curl http://127.0.0.1:38117/api/health` (fallback: `/health`)
+   - `curl http://127.0.0.1:38117/health` (if API is namespaced, use `/api/health`)
 2. Run a lightweight MCP tool call to verify data path:
    - `backlog.health` then `backlog.version`
    - `backlog.identify_project`
@@ -57,7 +57,7 @@ If the MCP tool call fails because the MCP server is not configured in the curre
 
 - Register a local MCP server named `agentic-backlog` in the active client.
 - Use local command: `npx -y @hakenshi/agentic-backlog-mcp-server`.
-- Set env: `BACKLOG_API_BASE_URL=http://127.0.0.1:38117/api`.
+- Set env: `BACKLOG_API_BASE_URL=http://127.0.0.1:38117`.
 
 If the API health check fails, run the API bootstrap fallback section above.
 
@@ -111,10 +111,20 @@ Task-by-name behavior:
 
 - `backlog.health`
 - `backlog.version`
+
+When available in current MCP version:
+
 - `backlog.get_focus`
 - `backlog.claim_task`
 - `backlog.release_task`
-- `backlog.restore_task` (when available)
+- `backlog.restore_task`
+
+## Capability check (required)
+
+- Before relying on operational tools, verify availability in the current MCP server.
+- If `backlog.health`/`backlog.version` are unavailable, fallback to `backlog.identify_project` as connectivity check.
+- If `backlog.get_focus` is unavailable, fallback to `backlog.get_board` + `backlog.list_tasks(status=in_progress|blocked)`.
+- If `backlog.restore_task` is unavailable, communicate that restore is not exposed in this MCP version.
 
 ## Goal
 
@@ -173,12 +183,19 @@ Always include metadata when available:
 ## Failure protocol (required)
 
 - If MCP/API is unavailable, return this standard message:
-  - `Backlog indisponivel no momento. Vou reestabelecer conexao e tentar novamente.`
+  - `Backlog indisponivel no momento. Vou restabelecer conexao e tentar novamente.`
+- MCP fail-fast behavior:
+  - The MCP may open a short circuit window after timeout/5xx errors and return immediate 503 responses.
+  - This is expected and prevents long agent stalls when API is down.
+  - During this window, use `backlog.health` and `backlog.version` as recovery probes.
 - Then execute recovery in order:
   1. `backlog.health`
   2. API bootstrap fallback (section above)
   3. `backlog.version`
   4. Retry original operation once
+- Retry rules:
+  - Retry only timeout/5xx.
+  - Do not retry 4xx validation/auth/conflict errors.
 
 ## Planning mode
 
